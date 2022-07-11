@@ -3,7 +3,13 @@ package MegaMillions;
 import Common.Game;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -143,6 +149,43 @@ public class MegaMillions implements Game {
         for (String draw : getBestRandomPicks(topPercent,numberOfTickets)) {
             System.out.println(draw);
         }
+    }
+
+    public void writeCSVs() throws IOException {
+        writeCSV(firstNumberFrequency,"first.csv");
+        writeCSV(secondNumberFrequency,"second.csv");
+        writeCSV(thirdNumberFrequency,"third.csv");
+        writeCSV(fourthNumberFrequency,"fourth.csv");
+        writeCSV(fifthNumberFrequency,"fifth.csv");
+        writeCSV(megaNumberFrequency,"mega.csv");
+    }
+
+    private void writeCSV(Map<Integer,Integer> map, String fileName) throws IOException {
+        CsvSchema schema = null;
+        CsvSchema.Builder schemaBuilder = CsvSchema.builder();
+        List<Map<String,Integer>> listOfMap = buildCSVMap(map);
+        File file = new File(fileName);
+        Writer writer = new FileWriter(file, true);
+        if (listOfMap != null && !listOfMap.isEmpty()) {
+            for (String col : listOfMap.get(0).keySet()) {
+                schemaBuilder.addColumn(col);
+            }
+            schema = schemaBuilder.build().withLineSeparator("\r").withHeader();
+        }
+        CsvMapper mapper = new CsvMapper();
+        mapper.writer(schema).writeValues(writer).writeAll(listOfMap);
+        writer.flush();
+    }
+
+    private List<Map<String,Integer>> buildCSVMap(Map<Integer,Integer> map) {
+        List<Map<String,Integer>> result = new ArrayList<>();
+        for (Map.Entry<Integer,Integer> entry : map.entrySet()) {
+            Map<String,Integer> element = new HashMap<>();
+            element.put("number",entry.getKey());
+            element.put("frequency",entry.getValue());
+            result.add(element);
+        }
+        return result;
     }
 
 }

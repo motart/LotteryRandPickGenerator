@@ -5,6 +5,7 @@ public class Driver {
     public static void main(String[] args) throws Exception {
         MegaMillions megaMillions = new MegaMillions();
         megaMillions.runReport();
-        megaMillions.printRandomPicks(0.4f, 10);
+        // megaMillions.writeCSVs();
+        megaMillions.printRandomPicks(0.2f, 40);
     }
 }
